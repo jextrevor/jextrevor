@@ -1,4 +1,5 @@
 const fse = require("fs-extra")
+const fs = require("fs")
 const path = require("path")
 const { promisify } = require('util')
 const globP = promisify(require('glob'))
@@ -7,8 +8,13 @@ const globP = promisify(require('glob'))
 const distPath = './public'
 const srcPath = './src'
 
-fse.emptyDirSync(distPath)
-
+fs.readdir(distPath, function(err, list) {
+    list.forEach(function (filename) {
+      if(! /^\..*/.test(filename)) {
+        fs.unlinkSync(`${distPath}/${filename}`)
+      }
+    });
+  });
 globP('**/*.build.js', { cwd: `${srcPath}`}).then((files)=>{
     files.forEach((file)=>{
         const { build } = require(`${srcPath}/${file}`)
